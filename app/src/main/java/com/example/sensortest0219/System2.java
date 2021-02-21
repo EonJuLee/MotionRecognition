@@ -10,6 +10,9 @@ public class System2 extends RuleSystem{
     public static int ARRAY_LENGTH = 3;
     public static int border = 3;
 
+    public int xAccelDir, xAccelCnt;
+    public int zGyroDir, zGyroCnt;
+
     public System2(){
         super();
         initSystem();
@@ -18,12 +21,16 @@ public class System2 extends RuleSystem{
     @Override
     public void initSystem() {
         super.initSystem();
+        xAccelCnt=xAccelDir=0;
+        zGyroCnt=zGyroDir=0;
         initSquareArray();
     }
 
     @Override
     public void startMotion() {
         super.startMotion();
+        xAccelCnt=xAccelDir=0;
+        zGyroCnt=zGyroDir=0;
         initSquareArray();
     }
 
@@ -40,6 +47,8 @@ public class System2 extends RuleSystem{
         }
         sumSquare(gyros,accels);
         checkDirX(accels[AXIS_X],dt);
+        checkAccelX(accels[AXIS_X]);
+        checkgyroZ(gyros[AXIS_Z]);
     }
 
     public double filterNoise(double value){
@@ -65,7 +74,57 @@ public class System2 extends RuleSystem{
         return maxIndex;
     }
 
+    public void checkAccelX(float accX){
+        if(xAccelCnt<4){
+            if(accX<0&&(xAccelDir%2==1||xAccelCnt==0)){
+                xAccelCnt++;
+                xAccelDir=xAccelDir*2;
+            }
+            if(accX>0&&(xAccelDir%2==0||xAccelCnt==0)){
+                xAccelCnt++;
+                xAccelDir=xAccelDir*2+1;
+            }
+        }
+    }
+
+    public void checkgyroZ(float gyroZ){
+        if(zGyroCnt<3){
+            if(gyroZ<0 && (zGyroDir%2==1||zGyroCnt==0)){
+                zGyroCnt++;
+                zGyroDir=zGyroDir*2;
+            }
+            if(gyroZ>0 && (zGyroDir%2==0||zGyroCnt==0)){
+                zGyroCnt++;
+                zGyroDir=zGyroDir*2+1;
+            }
+        }
+    }
+
     public int findGesture(){
+        int gesture = UNDEFINED;
+        int maxIndexOfGyro = findMaxSquare(squareGyro);
+        int maxIndexOfAccel = findMaxSquare(squareAccel);
+        // xMoveDir=xMoveDir&7;
+        zGyroDir=zGyroDir&7;
+        xAccelDir=xAccelDir&15;
+        if(maxIndexOfAccel==AXIS_Z && maxIndexOfGyro==AXIS_X){
+            gesture = GESTURE_I;
+        }
+        else if(xAccelDir==10){
+            gesture = GESTURE_S;
+        }
+        else if(zGyroDir==2){
+            gesture = GESTURE_Z;
+        }
+        else{
+            gesture = ERROR_FOUND;
+        }
+        totalTried++;
+        detected[gesture]++;
+        return gesture;
+    }
+
+    public int findGestureImproved(){
         int gesture = UNDEFINED;
         int maxIndexOfGyro = findMaxSquare(squareGyro);
         int maxIndexOfAccel = findMaxSquare(squareAccel);

@@ -138,6 +138,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 break;
             case 2:
                 showToast("Found "+motions[system2.findGesture()]);
+                showMessage("xDet : "+system2.getxMoveDir()+"\nxAccel : "+system2.xAccelDir+"\nzGyro: "+system2.zGyroDir);
+                break;
+            case 3:
+                showToast("Found "+motions[system2.findGestureImproved()]);
                 showMessage("xDet : "+system2.getxMoveDir());
                 break;
         }
@@ -149,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 system1.initCntArray();
                 break;
             case 2:
+            case 3:
                 system2.initCntArray();
                 break;
         }
@@ -162,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 system=system1;
                 break;
             case 2:
+            case 3:
                 system2.initSystem();
                 system=system2;
                 break;
@@ -175,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 system1.startMotion();
                 break;
             case 2:
+            case 3:
                 system2.startMotion();
                 break;
         }
@@ -186,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 system1.applyRule(gyros,accels,dt);
                 break;
             case 2:
+            case 3:
                 system2.applyRule(gyros,accels,dt);
                 break;
         }
@@ -262,12 +270,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         switch(item.getItemId()){
             case R.id.menu_rulebase1:
                 detSystem=1;
+                showToast("Move to System"+detSystem);
                 break;
             case R.id.menu_rulebase2:
                 detSystem=2;
+                showToast("Move to System"+detSystem);
+                break;
+            case R.id.menu_rulebase3:
+                detSystem=3;
+                showToast("Move to Improved System");
                 break;
         }
-        showToast("Move to System"+detSystem);
         initSystem();
         return super.onOptionsItemSelected(item);
     }
