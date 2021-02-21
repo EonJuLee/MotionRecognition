@@ -1,21 +1,35 @@
 package com.example.sensortest0219;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.ActionMenuItem;
+import androidx.appcompat.view.menu.ActionMenuItemView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ActionMenuView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.lang.annotation.Target;
+
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -36,9 +50,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private Button btnStart,btnEnd,btnReset;
     private TextView textMessage,textI,textS,textZ,textNone,textTotal,textTitle;
+    private LinearLayout table,mainLayout;
 
     private static String totalMessage = "You have tried ";
     private static String[] motions = {"I","S","Z","Nothing"};
+    private static int INITIAL_OPEN = 1;
+    private static int INITIAL_TRIAL = 1;
+    private static int NOT_INITIAL_OPEN = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +80,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textTotal=findViewById(R.id.textCountTotal);
         textMessage = (TextView) findViewById(R.id.textMessage);
         textTitle = findViewById(R.id.textTitle);
+        table=findViewById(R.id.table);
+        mainLayout=findViewById(R.id.mainLayout);
 
         system1 = new System1();
         system2 = new System2();
         initSystem();
         setButtonEvent();
+
+        SharedPreferences preferences = getSharedPreferences("sensorTest",MODE_PRIVATE);
+        int initialOpen = preferences.getInt("initialOpen",INITIAL_OPEN);
+        //int initialOpen = INITIAL_OPEN;
+
+        if(initialOpen==INITIAL_OPEN){
+            showGetStarted();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("initialOpen",NOT_INITIAL_OPEN);
+            editor.commit();
+        }
     }
 
     public void setButtonEvent(){
@@ -243,5 +274,71 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void showToast(String message){
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
+    }
+
+    private void showIntroDismissOnTarget(String title, String text, View view, int sequenceCnt){
+        new GuideView.Builder(this)
+                .setTitle(title)
+                .setContentText(text)
+                .setTargetView(view)
+                .setContentTextSize(12)
+                .setTitleTextSize(16)
+                .setDismissType(DismissType.targetView)
+                .setGuideListener(new GuideListener() {
+                    @Override
+                    public void onDismiss(View view) {
+                        switch(sequenceCnt) {
+                            case 6:
+                                showIntroDismissOnTarget("Done?","Click right after the motion",btnEnd,sequenceCnt+1);
+                                break;
+                            case 7:
+                                showIntro("Developer Log","Only for developers",textMessage,sequenceCnt+1);
+                                break;
+                        }
+                    }
+                })
+                .build()
+                .show();
+    }
+
+    private void showIntro(String title, String text, View view, int sequenceCnt){
+        new GuideView.Builder(this)
+                .setTitle(title)
+                .setContentText(text)
+                .setTargetView(view)
+                .setContentTextSize(12)
+                .setTitleTextSize(16)
+                .setDismissType(DismissType.anywhere)
+                .setGuideListener(new GuideListener() {
+                    @SuppressLint("RestrictedApi")
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onDismiss(View view) {
+                        switch(sequenceCnt) {
+                            case 1:
+                                showIntro("System","The selected system",textTitle,sequenceCnt+1);
+                                break;
+                            case 2:
+                                showIntro("Total trials","For now 0 time!",textTotal,sequenceCnt+1);
+                                break;
+                            case 3:
+                                showIntro("Reset","Initialize the total trials",btnReset,sequenceCnt+1);
+                                break;
+                            case 4:
+                                showIntro("Table","Results of motion recognitions\n'?' stands for error",table,sequenceCnt+1);
+                                break;
+                            case 5:
+                                showIntroDismissOnTarget("Start!","Click and draw 'I'\nPlease click here",btnStart,sequenceCnt+1);
+                                break;
+                        }
+                    }
+                })
+                .build()
+                .show();
+    }
+
+    public void showGetStarted(){
+        int sequenceCnt=1;
+        showIntro("Hello!","Rule-based System\nfor motion recognition",mainLayout,sequenceCnt);
     }
 }

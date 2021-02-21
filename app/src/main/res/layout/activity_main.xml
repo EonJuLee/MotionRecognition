@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
+    android:id="@+id/mainLayout"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -49,6 +50,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginRight="40dp"
         android:background="@color/colorText"
+        android:id="@+id/table"
         android:orientation="horizontal">
 
         <TextView
