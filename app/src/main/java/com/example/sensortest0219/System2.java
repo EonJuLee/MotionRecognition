@@ -8,7 +8,7 @@ public class System2 extends RuleSystem{
     public double []squareAccel = {0,0,0};
 
     public static int ARRAY_LENGTH = 3;
-    public static int border = 2;
+    public static int border = 3;
 
     public int xAccelDir, xAccelCnt;
     public int zGyroDir, zGyroCnt;
