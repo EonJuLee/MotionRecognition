@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static int INITIAL_TRIAL = 1;
     private static int NOT_INITIAL_OPEN = 0;
 
+    private boolean isMeasuring = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 btnStart.setVisibility(View.GONE);
                 btnEnd.setVisibility(View.VISIBLE);
+                isMeasuring=true;
                 startMotion();
             }
         });
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 btnStart.setVisibility(View.VISIBLE);
                 btnEnd.setVisibility(View.GONE);
+                isMeasuring=false;
                 findGesture();
                 updateCount(system.getTotalTried(),system.getDetected());
             }
@@ -231,7 +235,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (dt - timestamp*NS2S != 0) {
-            applyRule(gyros,accels,dt);
+            if(isMeasuring)
+                applyRule(gyros,accels,dt);
         }
     }
 
