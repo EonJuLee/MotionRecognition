@@ -36,6 +36,9 @@ public class System1 extends RuleSystem{
         if(gyros[AXIS_X] >5 || gyros[AXIS_Y] >5 || gyros[AXIS_Z] >5){
             isError = true;
         }
+        if(gyros[AXIS_X] <-5 || gyros[AXIS_Y] <-5 || gyros[AXIS_Z] <-5){
+            isError = true;
+        }
     }
 
     public void addAbsSum(double accX, double accZ){
